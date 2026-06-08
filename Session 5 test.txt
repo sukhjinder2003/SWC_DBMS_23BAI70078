@@ -1,0 +1,35 @@
+with june as (
+select * from 
+user_actions WHERE
+EXTRACT (MONTH from event_date) = 6
+),
+july as (
+select * 
+from 
+user_actions 
+where
+EXTRACT (Month FROM event_date) = 7
+)
+select 7
+as MONTH, count(distinct(june.user_id)) as monthly_active_users
+from june
+inner JOIN
+july 
+on 
+june.user_id = july.user_id
+
+------------------------------
+
+SELECT COUNT(*)
+AS payment_count
+from(
+  SELECT merchant_id, credit_card_id, amount, 
+  transaction_timestamp -
+    LAG(transaction_timestamp,1) 
+  
+    OVER(PARTITION BY merchant_id, credit_card_id
+    ORDER BY transaction_timestamp) as NEXT_TRANS
+  FROM TRANSACTIONS
+  ORDER BY merchant_id, credit_card_id, amount
+) AS S1
+WHERE EXTRACT(MINUTE FROM NEXT_TRANS) < 10
